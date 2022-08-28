@@ -3,11 +3,15 @@
 #include <string.h>
 #include <gmp.h>
 
-
+// Note, that this alphabet isn't compatible with currently-mainstream bitcoin alphabet.
+// Take a note of this if this is something you need this for.
 const char alphabet[58] = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
-
-
 const char *max_integer = "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096";
+
+// not a thread-safe fix; not sure if it has to be, but at least it doesn't segfault.
+// Proper fix is to use palloc, which requires including postgres.h, which in turn
+// requires modifications to Makefile, which are already hacky ;)
+char encoded[1024];
 
 
 char *encode_base58(mpz_t uuid_int)
@@ -50,7 +54,6 @@ char *encode_base58(mpz_t uuid_int)
   buffer[buffer_position] = alphabet[mpz_get_ui(dividend)];
   buffer_position++;
 
-  char encoded[buffer_position];
   for (int i = buffer_position; i >= 0; i--) {
     encoded[buffer_position - i] = buffer[i - 1];
   }
